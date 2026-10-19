@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Punto de Venta Básico</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; display: flex; gap: 20px; }
+    .column { flex: 1; border: 1px solid #ddd; padding: 16px; border-radius: 8px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    button { cursor: pointer; padding: 6px 12px; margin-top: 8px; }
+    .total { font-size: 1.2rem; font-weight: bold; margin-top: 16px; }
+  </style>
+</head>
+<body>
+
+  <!-- Catálogo de productos -->
+  <div class="column">
+    <h2>Catálogo</h2>
+    <div id="catalog"></div>
+  </div>
+
+  <!-- Carrito / Venta en curso -->
+  <div class="column">
+    <h2>Ticket Actual</h2>
+    <table id="cart-table">
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Cant.</th>
+          <th>Precio</th>
+          <th>Subtotal</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <div class="total">Total: $<span id="total-amount">0.00</span></div>
+    <button onclick="checkout()">Completar Venta</button>
+    <button onclick="clearCart()">Cancelar</button>
+  </div>
+
+  <script>
+    const products = [
+      { id: 1, name: "Café Americano", price: 35.00 },
+      { id: 2, name: "Capuchino", price: 45.00 },
+      { id: 3, name: "Pan de Dulce", price: 18.00 },
+      { id: 4, name: "Sandwich", price: 55.00 }
+    ];
+
+    let cart = [];
+
+    function renderCatalog() {
+      const container = document.getElementById("catalog");
+      container.innerHTML = products.map(p => `
+        <div style="margin-bottom: 8px;">
+          <strong>${p.name}</strong> - $${p.price.toFixed(2)}
+          <button onclick="addToCart(${p.id})">Agregar</button>
+        </div>
+      `).join("");
+    }
+
+    function addToCart(id) {
+      const product = products.find(p => p.id === id);
+      const existing = cart.find(item => item.id === id);
+      if (existing) {
+        existing.qty += 1;
+      } else {
+        cart.push({ ...product, qty: 1 });
+      }
+      renderCart();
+    }
+
+    function renderCart() {
+      const tbody = document.querySelector("#cart-table tbody");
+      tbody.innerHTML = cart.map(item => `
+        <tr>
+          <td>${item.name}</td>
+          <td>${item.qty}</td>
+          <td>$${item.price.toFixed(2)}</td>
+          <td>$${(item.price * item.qty).toFixed(2)}</td>
+        </tr>
+      `).join("");
+
+      const total = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+      document.getElementById("total-amount").innerText = total.toFixed(2);
+    }
+
+    function clearCart() {
+      cart = [];
+      renderCart();
+    }
+
+    function checkout() {
+      if (cart.length === 0) {
+        alert("El carrito está vacío.");
+        return;
+      }
+      alert("¡Venta registrada con éxito!");
+      clearCart();
+    }
+
+    renderCatalog();
+  </script>
+</body>
+</html>
